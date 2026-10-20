@@ -1,9 +1,1262 @@
-<!doctype html>
-<title>{% block title %}{% endblock %} - Flaskr</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<nav>
-  <h1>Flaskr</h1>
 
-</nav>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Board - Desktop</title>
 
-hello, world
+<style>
+:root {
+  --bg: #f4f5f6;
+  --white: #fff;
+  --text: #242424;
+  --muted: #777;
+  --border: #e1e1e1;
+  --soft: #f0f0f0;
+  --dark: #252525;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  font-size: 14px;
+}
+
+button, input, textarea, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+/* Sidebar */
+
+.sidebar {
+  background: white;
+  border-right: 1px solid var(--border);
+  padding: 25px 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.brand {
+  font-size: 19px;
+  font-weight: bold;
+  padding: 5px 10px 30px;
+}
+
+.brand small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: normal;
+  margin-top: 6px;
+}
+
+.nav-title {
+  color: #999;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 16px 10px 8px;
+}
+
+.nav a {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 4px;
+  text-decoration: none;
+  color: #555;
+  border-radius: 6px;
+}
+
+.nav a:hover,
+.nav a.active {
+  background: #eaeaea;
+  color: #111;
+  font-weight: bold;
+}
+
+.profile {
+  margin-top: auto;
+  padding: 20px 8px 0;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.profile span {
+  display: block;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+/* Header */
+
+.main {
+  min-width: 0;
+}
+
+.topbar {
+  height: 70px;
+  padding: 0 32px;
+  background: white;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.search {
+  width: 300px;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.content {
+  max-width: 1500px;
+  margin: auto;
+  padding: 32px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  letter-spacing: -0.7px;
+}
+
+h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Buttons */
+
+.btn {
+  background: white;
+  color: #222;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.btn:hover {
+  background: #eee;
+}
+
+.btn.dark {
+  background: var(--dark);
+  color: white;
+  border-color: var(--dark);
+}
+
+.btn.dark:hover {
+  background: #444;
+}
+
+.btn.small {
+  padding: 7px 10px;
+}
+
+/* Dashboard statistics */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.stat {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 29px;
+  margin: 10px 0 5px;
+}
+
+.stat small {
+  color: var(--muted);
+}
+
+/* Panels and layout */
+
+.columns {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+.panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 17px 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panel-body {
+  padding: 20px;
+}
+
+.filters {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.filter {
+  padding: 7px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: white;
+  font-size: 11px;
+}
+
+.filter.active {
+  background: #e8e8e8;
+  border-color: #e8e8e8;
+  font-weight: bold;
+}
+
+/* Notices */
+
+.notice {
+  padding: 18px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.notice:last-child {
+  border-bottom: 0;
+}
+
+.meta {
+  color: #888;
+  font-size: 10px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.notice p,
+.review p {
+  color: #666;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.notice-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #888;
+  font-size: 10px;
+}
+
+.review {
+  padding: 16px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.review:first-child {
+  padding-top: 0;
+}
+
+.review:last-child {
+  border: 0;
+  padding-bottom: 0;
+}
+
+.review-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.link {
+  color: #555;
+  font-size: 11px;
+  text-decoration: underline;
+}
+
+/* Forms */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.field {
+  margin-bottom: 18px;
+}
+
+.field.full {
+  grid-column: 1 / -1;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+input[type="text"],
+input[type="date"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d7d7d7;
+  border-radius: 5px;
+  background: white;
+  color: #333;
+}
+
+textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.helper {
+  text-align: right;
+  font-size: 10px;
+  color: #888;
+  margin-top: 5px;
+}
+
+.tip {
+  padding: 15px;
+  background: #f6f6f6;
+  border: 1px solid #e7e7e7;
+  border-radius: 6px;
+  color: #666;
+  font-size: 12px;
+  margin-bottom: 22px;
+}
+
+.tip strong {
+  display: block;
+  color: #222;
+  margin-bottom: 5px;
+}
+
+.upload {
+  border: 1px dashed #ccc;
+  padding: 25px;
+  text-align: center;
+  border-radius: 6px;
+  color: #666;
+}
+
+.checkbox {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+
+/* Settings */
+
+.settings-layout {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.settings-menu {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px;
+}
+
+.settings-menu a {
+  display: block;
+  padding: 11px;
+  color: #555;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.settings-menu a.active,
+.settings-menu a:hover {
+  background: #eee;
+  color: #222;
+}
+
+.setting-row {
+  padding: 16px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.setting-row:last-child {
+  border-bottom: 0;
+}
+
+.setting-name {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.setting-desc {
+  color: #888;
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.toggle {
+  width: 35px;
+  height: 19px;
+  border: 1px solid #aaa;
+  border-radius: 20px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.toggle::before {
+  content: "";
+  height: 13px;
+  width: 13px;
+  border-radius: 50%;
+  background: #888;
+}
+
+.toggle.on {
+  justify-content: flex-end;
+  background: #ddd;
+}
+
+.toggle.on::before {
+  background: #333;
+}
+
+.preview {
+  background: #f6f6f6;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 18px;
+  margin-top: 18px;
+}
+
+.preview p {
+  color: #666;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.range {
+  margin: 25px 10px 10px;
+  border-top: 1px solid #aaa;
+  position: relative;
+}
+
+.range::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 40%;
+  width: 11px;
+  height: 11px;
+  border: 1px solid #777;
+  border-radius: 50%;
+  background: white;
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  color: #888;
+  font-size: 10px;
+}
+
+section.page {
+  margin-bottom: 45px;
+  scroll-margin-top: 20px;
+}
+
+footer {
+  text-align: center;
+  color: #888;
+  font-size: 11px;
+  padding: 30px;
+}
+
+/* Responsive layout */
+
+@media (max-width: 1050px) {
+  .app {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+
+  .content {
+    padding: 24px;
+  }
+
+  .columns {
+    grid-template-columns: 1fr;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .app {
+    display: block;
+  }
+
+  .sidebar {
+    min-height: auto;
+    padding: 12px;
+  }
+
+  .brand {
+    padding: 8px;
+  }
+
+  .nav-title,
+  .profile {
+    display: none;
+  }
+
+  .nav {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .nav a {
+    white-space: nowrap;
+    padding: 10px;
+  }
+
+  .topbar {
+    height: auto;
+    padding: 14px;
+    flex-wrap: wrap;
+  }
+
+  .search {
+    width: 100%;
+  }
+
+  .content {
+    padding: 16px;
+  }
+
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-menu {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .settings-menu a {
+    white-space: nowrap;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field.full {
+    grid-column: auto;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      Community Board
+      <small>Maplewood community</small>
+    </div>
+
+    <div class="nav-title">Workspace</div>
+    <nav class="nav">
+      <a class="active" href="#board">▦ &nbsp; Board</a>
+      <a href="#create">＋ &nbsp; Create notice</a>
+      <a href="#moderation">♢ &nbsp; Moderation</a>
+    </nav>
+
+    <div class="nav-title">Account</div>
+    <nav class="nav">
+      <a href="#settings">⚙ &nbsp; Settings</a>
+      <a href="#accessibility">◉ &nbsp; Accessibility</a>
+    </nav>
+
+    <div class="profile">
+      <strong>General Ruckus</strong>
+      <span>Administrator</span>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- Header -->
+    <header class="topbar">
+      <div>Maplewood / Community workspace</div>
+      <input class="search" type="text"
+             placeholder="Search notices, members, or settings">
+    </header>
+
+    <div class="content">
+
+      <!-- Dashboard -->
+      <section class="page" id="board">
+        <div class="page-header">
+          <div>
+            <h1>Community board</h1>
+            <div class="subtitle">
+              Updates, events and notices for Maplewood.
+            </div>
+          </div>
+          <a href="#create">
+            <button class="btn dark">+ Create notice</button>
+          </a>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Live notices</div>
+            <strong>24</strong>
+            <small>Published notices</small>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Awaiting review</div>
+            <strong>3</strong>
+            <small>Notices need approval</small>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Community members</div>
+            <strong>156</strong>
+            <small>Current membership</small>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Open reports</div>
+            <strong>2</strong>
+            <small>Flagged notices</small>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div>
+            <div class="panel">
+              <div class="panel-header">
+                <h2>Recent notices</h2>
+                <button class="btn small">View all</button>
+              </div>
+
+              <div class="panel-body">
+                <div class="filters">
+                  <button class="filter active">All notices</button>
+                  <button class="filter">Events</button>
+                  <button class="filter">Updates</button>
+                  <button class="filter">Lost &amp; found</button>
+                </div>
+              </div>
+
+              <article class="notice">
+                <div class="meta">Update · Pinned</div>
+                <h3>Water supply maintenance</h3>
+                <p>
+                  Tuesday, 13 October, 9 am–12 pm.
+                  Please store enough water before work begins.
+                </p>
+                <div class="notice-footer">
+                  <span>General Ruckus · 25 minutes ago</span>
+                  <span>Edit · More</span>
+                </div>
+              </article>
+
+              <article class="notice">
+                <div class="meta">Event</div>
+                <h3>Saturday park clean-up</h3>
+                <p>
+                  Meet at Maplewood Park at 10 am.
+                  Gloves and rubbish bags provided.
+                </p>
+                <div class="notice-footer">
+                  <span>Priya Shah · 1 hour ago</span>
+                  <span>Edit · More</span>
+                </div>
+              </article>
+
+              <article class="notice">
+                <div class="meta">Lost &amp; found</div>
+                <h3>Keys found near the library</h3>
+                <p>
+                  A set of keys with a blue tag.
+                  Collect from the library reception.
+                </p>
+                <div class="notice-footer">
+                  <span>Jordan Lee · 2 hours ago</span>
+                  <span>Edit · More</span>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Awaiting approval</h2>
+              <a class="link" href="#moderation">View queue</a>
+            </div>
+
+            <div class="panel-body">
+              <div class="review">
+                <div class="meta">Event · Maya Chen</div>
+                <h3>Weekend book swap</h3>
+                <p>Sunday, 18 October at the community hall.</p>
+                <div class="review-actions">
+                  <button class="btn small">Reject</button>
+                  <button class="btn dark small">Approve</button>
+                </div>
+              </div>
+
+              <div class="review">
+                <div class="meta">Request · Ben Carter</div>
+                <h3>Looking for a local dog walker</h3>
+                <p>Weekday afternoons for a friendly labrador.</p>
+                <div class="review-actions">
+                  <button class="btn small">Reject</button>
+                  <button class="btn dark small">Approve</button>
+                </div>
+              </div>
+
+              <div class="review">
+                <div class="meta">Update · 1 hour ago</div>
+                <h3>Community garden tools</h3>
+                <p>A request to share tools between neighbours.</p>
+                <div class="review-actions">
+                  <button class="btn small">Reject</button>
+                  <button class="btn dark small">Approve</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Create Notice -->
+      <section class="page" id="create">
+        <div class="page-header">
+          <div>
+            <h1>Create a notice</h1>
+            <div class="subtitle">
+              Share an update with your community.
+              Fields marked * are required.
+            </div>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Notice details</h2>
+            </div>
+
+            <div class="panel-body">
+              <div class="tip">
+                <strong>Posting tips</strong>
+                Keep titles short, include a date and location,
+                and use the message field for details.
+              </div>
+
+              <form>
+                <div class="form-grid">
+                  <div class="field full">
+                    <label for="title">Notice title *</label>
+                    <input id="title" type="text"
+                           placeholder="e.g. Saturday park clean-up">
+                  </div>
+
+                  <div class="field">
+                    <label for="category">Category *</label>
+                    <select id="category">
+                      <option>Select a category</option>
+                      <option>Event</option>
+                      <option>Update</option>
+                      <option>Lost &amp; found</option>
+                      <option>Request</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="visibility">Visible to</label>
+                    <select id="visibility">
+                      <option>All members</option>
+                      <option>Moderators only</option>
+                    </select>
+                  </div>
+
+                  <div class="field full">
+                    <label for="message">Message *</label>
+                    <textarea id="message"
+                      placeholder="What should your neighbours know? Include a date, location, and contact details."></textarea>
+                  </div>
+
+                  <div class="field full">
+                    <label>Attachment (optional)</label>
+                    <div class="upload">
+                      + &nbsp; Add a photo or document
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label for="expiry">Expires on</label>
+                    <input id="expiry" type="date">
+                  </div>
+
+                  <div class="field">
+                    <label>Pin to top of board</label>
+                    <div class="checkbox">
+                      <input type="checkbox" id="pinned">
+                      <label for="pinned">Pin this notice</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="text-align:right">
+                  <button class="btn" type="button">Save draft</button>
+                  <button class="btn dark" type="button">
+                    Publish notice
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Notice preview</h2>
+            </div>
+            <div class="panel-body">
+              <div class="preview">
+                <div class="meta">Notice preview</div>
+                <h3>Saturday park clean-up</h3>
+                <p>
+                  Meet at Maplewood Park, 10 am.
+                  Gloves and rubbish bags provided.
+                </p>
+              </div>
+              <p class="subtitle">
+                Your notice will appear on the community board
+                after publishing or approval.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Moderation -->
+      <section class="page" id="moderation">
+        <div class="page-header">
+          <div>
+            <h1>Moderation</h1>
+            <div class="subtitle">
+              Review submissions and manage community reports.
+            </div>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Pending notices</div>
+            <strong>3</strong>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Open reports</div>
+            <strong>2</strong>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Awaiting approval</h2>
+            </div>
+
+            <article class="notice">
+              <div class="meta">Event · Maya Chen</div>
+              <h3>Weekend book swap</h3>
+              <p>Sunday, 18 October at the community hall.</p>
+              <div class="review-actions">
+                <button class="btn">Reject</button>
+                <button class="btn dark">Approve</button>
+              </div>
+            </article>
+
+            <article class="notice">
+              <div class="meta">Request · Ben Carter</div>
+              <h3>Looking for a local dog walker</h3>
+              <p>Weekday afternoons for a friendly labrador.</p>
+              <div class="review-actions">
+                <button class="btn">Reject</button>
+                <button class="btn dark">Approve</button>
+              </div>
+            </article>
+
+            <article class="notice">
+              <div class="meta">Update</div>
+              <h3>Community garden tools</h3>
+              <p>A request to share tools between neighbours.</p>
+              <div class="review-actions">
+                <button class="btn">Reject</button>
+                <button class="btn dark">Approve</button>
+              </div>
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Flagged notices</h2>
+            </div>
+            <div class="panel-body">
+              <div class="meta">2 reports · Possible spam</div>
+              <h3>Discount home repair services</h3>
+              <p>Repeated promotional post. Reported 1 hour ago.</p>
+              <button class="btn" style="width:100%">
+                Review report
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings -->
+      <section class="page" id="settings">
+        <div class="page-header">
+          <div>
+            <h1>Settings</h1>
+            <div class="subtitle">
+              Manage your account, privacy and security preferences.
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-layout">
+          <nav class="settings-menu">
+            <a class="active" href="#account">Account</a>
+            <a href="#privacy">Privacy</a>
+            <a href="#security">Security</a>
+            <a href="#notifications">Notifications</a>
+            <a href="#accessibility">Accessibility</a>
+          </nav>
+
+          <div>
+            <div class="panel" id="account">
+              <div class="panel-header"><h2>Account</h2></div>
+              <div class="panel-body">
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Profile details</div>
+                    <div class="setting-desc">General Ruckus · Administrator</div>
+                  </div>
+                  <span>›</span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Email address</div>
+                    <div class="setting-desc">general.ruckus@example.com</div>
+                  </div>
+                  <span>›</span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Community membership</div>
+                    <div class="setting-desc">Maplewood · 156 members</div>
+                  </div>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel" id="privacy">
+              <div class="panel-header"><h2>Privacy</h2></div>
+              <div class="panel-body">
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Profile visibility</div>
+                    <div class="setting-desc">Community members only</div>
+                  </div>
+                  <span>›</span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Show contact details</div>
+                    <div class="setting-desc">Keep email and phone private</div>
+                  </div>
+                  <span class="toggle"></span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Blocked members</div>
+                    <div class="setting-desc">Manage who can contact you</div>
+                  </div>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel" id="security">
+              <div class="panel-header"><h2>Security</h2></div>
+              <div class="panel-body">
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Change password</div>
+                    <div class="setting-desc">Update your account password</div>
+                  </div>
+                  <span>›</span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Two-step verification</div>
+                    <div class="setting-desc">Extra protection for your account</div>
+                  </div>
+                  <span class="toggle on"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel" id="notifications">
+              <div class="panel-header"><h2>Notifications</h2></div>
+              <div class="panel-body">
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">New community notices</div>
+                    <div class="setting-desc">Push notifications</div>
+                  </div>
+                  <span class="toggle on"></span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Moderation alerts</div>
+                    <div class="setting-desc">Reports and approval requests</div>
+                  </div>
+                  <span class="toggle on"></span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Email digest</div>
+                    <div class="setting-desc">Weekly · Every Monday</div>
+                  </div>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Accessibility -->
+      <section class="page" id="accessibility">
+        <div class="page-header">
+          <div>
+            <h1>Accessibility</h1>
+            <div class="subtitle">
+              Adjust the reading and display experience.
+            </div>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div>
+            <div class="panel">
+              <div class="panel-header">
+                <h2>Text size</h2>
+                <span class="subtitle">Default</span>
+              </div>
+              <div class="panel-body">
+                <label>Adjust reading size</label>
+                <input type="range" min="1" max="5" value="3"
+                       style="width:100%;margin:20px 0">
+                <div class="range-labels">
+                  <span>Small</span>
+                  <span>Extra large</span>
+                </div>
+
+                <div class="preview">
+                  <div class="meta">Preview</div>
+                  <h3>Saturday park clean-up</h3>
+                  <p>
+                    Meet at Maplewood Park at 10 am.
+                    Gloves and rubbish bags provided.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <h2>Display and readability</h2>
+              </div>
+              <div class="panel-body">
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">High contrast</div>
+                    <div class="setting-desc">Increase text and border contrast</div>
+                  </div>
+                  <span class="toggle"></span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Bold text</div>
+                    <div class="setting-desc">Make labels and notice text heavier</div>
+                  </div>
+                  <span class="toggle"></span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Dark mode</div>
+                    <div class="setting-desc">Use a darker background</div>
+                  </div>
+                  <span class="toggle"></span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Reduce motion</div>
+                    <div class="setting-desc">Limit animations and transitions</div>
+                  </div>
+                  <span class="toggle"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel">
+              <div class="panel-header">
+                <h2>Screen reader support</h2>
+              </div>
+              <div class="panel-body">
+                <p>
+                  Designed to support assistive technologies through
+                  clear headings, descriptions and labelled controls.
+                </p>
+                <a class="link" href="#accessibility">
+                  Read the screen reader guide →
+                </a>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header"><h2>Layout and media</h2></div>
+              <div class="panel-body">
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Larger touch targets</div>
+                    <div class="setting-desc">Give buttons and links more space</div>
+                  </div>
+                  <span class="toggle"></span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Underline links</div>
+                    <div class="setting-desc">Identify links without relying on colour</div>
+                  </div>
+                  <span class="toggle on"></span>
+                </div>
+                <div class="setting-row">
+                  <div>
+                    <div class="setting-name">Show captions</div>
+                    <div class="setting-desc">Show captions on supported videos</div>
+                  </div>
+                  <span class="toggle on"></span>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn" style="width:100%">
+              Reset accessibility preferences
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <footer>Community Board · Desktop concept · Version 1.0</footer>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>
